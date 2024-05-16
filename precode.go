@@ -16,7 +16,7 @@ func Generator(ctx context.Context, ch chan<- int64, fn func(int64)) {
 	// 1. Функция Generator
 	defer close(ch)
 
-	N := int64(0)
+	N := int64(1)
 	for {
 		select {
 		case <-ctx.Done():
@@ -34,6 +34,7 @@ func Worker(in <-chan int64, out chan<- int64) {
 	defer close(out)
 	for num := range in {
 		out <- num
+		time.Sleep(time.Millisecond)
 	}
 }
 
@@ -54,7 +55,7 @@ func main() {
 		inputCount++
 	})
 
-	const NumOut = 15 // количество обрабатывающих горутин и каналов
+	const NumOut = 5 // количество обрабатывающих горутин и каналов
 	// outs — слайс каналов, куда будут записываться числа из chIn
 	outs := make([]chan int64, NumOut)
 	for i := 0; i < NumOut; i++ {
