@@ -16,14 +16,14 @@ func Generator(ctx context.Context, ch chan<- int64, fn func(int64)) {
 	// 1. Функция Generator
 	defer close(ch)
 
-	N := int64(1)
+	n := int64(1)
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case ch <- N:
-			fn(N)
-			N++
+		case ch <- n:
+			fn(n)
+			n++
 		}
 	}
 }
@@ -46,11 +46,14 @@ func main() {
 	defer cancel()
 
 	// для проверки будем считать количество и сумму отправленных чисел
+	var mu sync.Mutex
 	var inputSum int64   // сумма сгенерированных чисел
 	var inputCount int64 // количество сгенерированных чисел
 
 	// генерируем числа, считая параллельно их количество и сумму
 	go Generator(ctx, chIn, func(i int64) {
+		mu.Lock()
+		defer mu.Unlock()
 		inputSum += i
 		inputCount++
 	})
